@@ -9,7 +9,7 @@ module RailsAdmin
         def initialize(controller)
           @controller = controller
           @controller.extend ControllerExtension
-          @controller.current_ability.authorize! :access, :rails_admin
+          @controller.authorize! :access, :rails_admin
         end
 
         # This method is called in every controller action and should raise an exception
@@ -19,7 +19,7 @@ module RailsAdmin
         # instance if it is available.
         def authorize(action, abstract_model = nil, model_object = nil)
           action = translate_action(action)
-          @controller.current_ability.authorize!(action, model_object || abstract_model.model) if action
+          @controller.authorize!(action, model_object || abstract_model.model) if action
         end
 
         # This method is called primarily from the view to determine whether the given user
@@ -28,7 +28,7 @@ module RailsAdmin
         # return a boolean whereas +authorize+ will raise an exception when not authorized.
         def authorized?(action, abstract_model = nil, model_object = nil)
           action = translate_action(action)
-          @controller.current_ability.can?(action, model_object || abstract_model.model) if action
+          @controller.can?(action, model_object || abstract_model.model) if action
         end
 
         # This is called when needing to scope a database query. It is called within the list
@@ -36,7 +36,7 @@ module RailsAdmin
         # to those which the user can perform the given action on.
         def query(action, abstract_model)
           action = translate_action(action)
-          abstract_model.model.accessible_by(@controller.current_ability, action)
+          abstract_model.model.accessible_by(@controller. action)
         end
 
         # This is called in the new/create actions to determine the initial attributes for new
@@ -44,7 +44,7 @@ module RailsAdmin
         # is authorized to create.
         def attributes_for(action, abstract_model)
           action = translate_action(action)
-          @controller.current_ability.attributes_for(action, abstract_model.model)
+          @controller.attributes_for(action, abstract_model.model)
         end
 
         private
