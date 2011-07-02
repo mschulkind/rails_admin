@@ -36,7 +36,7 @@ module RailsAdmin
         # to those which the user can perform the given action on.
         def query(action, abstract_model)
           action = translate_action(action)
-          abstract_model.model.accessible_by(@controller, action)
+          abstract_model.model.accessible_by(@controller.current_ability, action)
         end
 
         # This is called in the new/create actions to determine the initial attributes for new
