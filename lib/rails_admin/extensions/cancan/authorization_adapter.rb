@@ -44,7 +44,7 @@ module RailsAdmin
         # is authorized to create.
         def attributes_for(action, abstract_model)
           action = translate_action(action)
-          @controller.attributes_for(action, abstract_model.model)
+          @controller.current_ability.attributes_for(action, abstract_model.model)
         end
 
         private
