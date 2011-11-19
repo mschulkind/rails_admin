@@ -4,6 +4,11 @@
 sv:
   home:
     name: "hem"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "Administration"
@@ -21,7 +26,7 @@ sv:
       no_activity: "Ingen aktivitet"
     credentials:
       log_out: "Logga ut"
-    list:
+    index:
       edit_action: "Redigera"
       delete_action: "Ta bort"
       select_action: "Marker"
@@ -54,6 +59,7 @@ sv:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "Ja, jag är säker"
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     export:
       confirmation: "Export to %{name}"
       select: "Select fields to export"
@@ -87,11 +93,11 @@ sv:
       exported: "exported"
     breadcrumbs:
       delete: "delete"
-      history: "history"
+      for_object: "history"
       edit: "edit"
       export: "export"
       bulk_destroy: "delete"
       new: "new"
-      model_history: "history"
-      list: "list"
+      for_model: "history"
+      index: "list"
       dashboard: "dashboard"

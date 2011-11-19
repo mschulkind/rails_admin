@@ -6,8 +6,9 @@ module RailsAdmin
       # responds to each of the public methods here.
       class AuthorizationAdapter
         # See the +authorize_with+ config method for where the initialization happens.
-        def initialize(controller)
+        def initialize(controller, ability = ::Ability)
           @controller = controller
+          @controller.instance_variable_set '@ability', ability
           @controller.extend ControllerExtension
           @controller.authorize! :access, :rails_admin
         end
@@ -19,7 +20,7 @@ module RailsAdmin
         # instance if it is available.
         def authorize(action, abstract_model = nil, model_object = nil)
           action = translate_action(action)
-          @controller.authorize!(action, model_object || abstract_model.model) if action
+          @controller.authorize!(action, model_object || abstract_model && abstract_model.model) if action
         end
 
         # This method is called primarily from the view to determine whether the given user
@@ -28,7 +29,7 @@ module RailsAdmin
         # return a boolean whereas +authorize+ will raise an exception when not authorized.
         def authorized?(action, abstract_model = nil, model_object = nil)
           action = translate_action(action)
-          @controller.can?(action, model_object || abstract_model.model) if action
+          @controller.can?(action, model_object || abstract_model && abstract_model.model) if action
         end
 
         # This is called when needing to scope a database query. It is called within the list
@@ -44,7 +45,7 @@ module RailsAdmin
         # is authorized to create.
         def attributes_for(action, abstract_model)
           action = translate_action(action)
-          @controller.current_ability.attributes_for(action, abstract_model.model)
+          @controller.current_ability.attributes_for(action, abstract_model && abstract_model.model)
         end
 
         private
@@ -52,10 +53,9 @@ module RailsAdmin
         # Change the action into something that fits better with CanCan's conventions
         def translate_action(action)
           case action
-          when :index then nil # we don't want to do extra action authorization for dashboard
-          when :list then :index
-          when :delete, :bulk_delete, :bulk_destroy then :destroy
-          else action
+            when :list, :bulk_action then :index
+            when :delete, :bulk_destroy, :bulk_delete then :destroy
+            else action
           end
         end
 
@@ -63,7 +63,7 @@ module RailsAdmin
           def current_ability
             # use _current_user instead of default current_user so it works with
             # whatever current user method is defined with RailsAdmin
-            @current_ability ||= ::Ability.new(_current_user)
+            @current_ability ||= @ability.new(_current_user)
           end
         end
       end

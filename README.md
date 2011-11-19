@@ -1,8 +1,10 @@
-RailsAdmin
-==========
+# RailsAdmin
+
 RailsAdmin is a Rails engine that provides an easy-to-use interface for managing your data.
 
-See the demo here: http://demo.railsadmin.org/
+[![Build Status](https://secure.travis-ci.org/sferik/rails_admin.png)](http://travis-ci.org/sferik/rails_admin)
+
+[![Click here to lend your support to: RailsAdmin and make a donation at www.pledgie.com !](https://www.pledgie.com/campaigns/15917.png?skin_name=chrome)](http://www.pledgie.com/campaigns/15917)
 
 RailsAdmin started as a port of [MerbAdmin](https://github.com/sferik/merb-admin) to Rails 3
 and was implemented as a [Ruby Summer of Code project](http://www.rubysoc.org/projects)
@@ -10,7 +12,7 @@ by [Bogdan Gaza](https://github.com/hurrycane) with mentors [Erik Michaels-Ober]
 [Yehuda Katz](https://github.com/wycats),
 [Luke van der Hoeven](https://github.com/plukevdh), and [Rein Henrichs](https://github.com/reinh).
 
-It currently offers the following features:
+## Features
 
 * Display database tables
 * Create new data
@@ -22,67 +24,36 @@ It currently offers the following features:
 * Authentication (via [Devise](https://github.com/plataformatec/devise))
 * User action history
 
-Supported ORMs:
+See the demo here:
+http://rails-admin-tb.herokuapp.com
+
+### Supported ORMs:
 
 * ActiveRecord
 
-_[Information](https://github.com/sferik/rails_admin/issues/105) about support for other ORMs._
-We plan to support Mongoid soon.
+## <a name="support">Support</a>
+If you have a question, you can ask the [official RailsAdmin mailing
+list](http://groups.google.com/group/rails_admin) or ping sferik on IRC in
+[#railsadmin on
+irc.freenode.net](http://webchat.freenode.net/?channels=railsadmin).
 
-Help
-----
-If you have a question, you can ask the [official RailsAdmin mailing list](http://groups.google.com/group/rails_admin)
-or ping sferik on IRC in [#railsadmin on irc.freenode.net](http://webchat.freenode.net/?channels=railsadmin).
-Please don't use the issue tracker, which is for issues only.
+Check this README and the wiki first.
 
-Check if the build is green here: http://ci.railsadmin.org/job/RailsAdmin/
+If you think you found a bug in RailsAdmin, you can [submit an
+issue](https://github.com/sferik/rails_admin#issues)
+No feature requests or questions please (the mailing list is active).
+See at the bottom of this README for contributing.
 
-If you have good reasons to think you found a *rails_admin* bug, submit a ticket providing link to gists with:
-
-1. used rails_admin commit (in your Gemfile.lock)
-2. obtained stacktrace
-3. your initializers/rails_admin.rb
-4. models declarations that matter
-5. and anything else you find relevant
-
-API Update Note
----------------
-`navigation.max_visible_tabs` is not configurable anymore, as the new Activo
-theme implements the main navigation as a vertical list.
-
-`object_label` is not directly configurable anymore, as it lead to performance issues when used with a list of records.
-Please use object_label_method instead.
-
-The ability to set model labels for each section (list, navigation, update, ...) has been removed,
-as it was deemed unnecessarily granular and was not fully honored in all displays.
-That also means that the methods `label_for_navigation`, etc. are no longer functional. They print a warning at the moment.
-See details in the examples below for the currently supported way to label models.
-This change was motivated by the conversation following a [bug report](https://github.com/sferik/rails_admin/issues/319/#issue/319/comment/875868)
-about label display errors.
-
-The ability to set model visibility for each section has been removed due to
-same reasons as section specific label configuration (see above paragraph).
-This also means that methods such as `hide_from_navigation` and `show_in_list`
-are no longer functional and have been deprecated. For now on use model level
-configuration of visibility or for more granular control integrate an
-authorization framework as outlined later in this document.
-
-The field configuration method `partial` has been deprecated in favor of
-action-specific methods (`show_partial`, `edit_partial`, `create_partial` and
-`update_partial`). See the section titled **Fields - Rendering** above for more
-details.
-
-Screenshots
------------
+## <a name="screenshots">Screenshots</a>
 ![Dashboard view](https://github.com/sferik/rails_admin/raw/master/screenshots/dashboard.png "Dashboard view")
 ![List view](https://github.com/sferik/rails_admin/raw/master/screenshots/list.png "List view")
 ![Edit view](https://github.com/sferik/rails_admin/raw/master/screenshots/edit.png "Edit view")
+![Export view](https://github.com/sferik/rails_admin/raw/master/screenshots/export.png "Edit view")
 
-Installation
-------------
+## <a name="installation">Installation</a>
 In your `Gemfile`, add the following dependencies:
 
-    gem 'devise' # Devise must be required before RailsAdmin
+    gem 'fastercsv' # Only required on Ruby 1.8 and below
     gem 'rails_admin', :git => 'git://github.com/sferik/rails_admin.git'
 
 Run:
@@ -91,35 +62,49 @@ Run:
 
 And then run:
 
-    $ rake rails_admin:install
+    $ rails g rails_admin:install
 
-This task will install RailsAdmin and [Devise](https://github.com/plataformatec/devise) if you
+This generator will install RailsAdmin and [Devise](https://github.com/plataformatec/devise) if you
 don't already have it installed. [Devise](https://github.com/plataformatec/devise) is strongly
 recommended to protect your data from anonymous users.
+It will modify your `config/routes.rb`, adding:
 
-If you plan to use Devise, but want to use a custom model for authentication
-(default is User) you can provide that as an argument for the installer. For example
-to override the default with a Member model run:
+    mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
 
-    $ rake rails_admin:install model_name=member
+And add an intializer that will help you getting started. (head for config/initializers/rails_admin.rb)
 
-If you want to use the CKEditor, you need to [download it](http://ckeditor.com/download) from source
-and unpack the 'ckeditor' folder into your default 'public/javascripts' folder. If you're using any
-non-Windows system, you can try to use the automatic downloader:
-
-    $ rake rails_admin:ckeditor_download
-
-To use the CKEditor with Upload function, you can try [Rails-CKEditor](https://github.com/galetahub/rails-ckeditor) and after installed (following the [Rails-CKEditor](https://github.com/galetahub/rails-ckeditor) instructions) put the follow lines in "public/javascripts/ckeditor/config.js" to activate the Upload function:
-
-    $ config.filebrowserBrowseUrl = '/ckeditor/attachments';
-    $ config.filebrowserUploadUrl = '/ckeditor/attachments';
-    $ config.filebrowserImageBrowseUrl = '/ckeditor/pictures';
-    $ config.filebrowserImageUploadUrl = '/ckeditor/pictures';
+To use the CKEditor with Upload function, add [Rails-CKEditor](https://github.com/galetahub/ckeditor) to your Gemfile (`gem 'ckeditor'`) and follow [Rails-CKEditor](https://github.com/galetahub/ckeditor) installation instructions.
 
 You can configure more options of CKEditor "config.js" file following the [Api Documentation](http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html) .
 
-Usage
------
+### Asset pipeline
+
+The master branch currently targets Rails 3.1. Older branch with 3.0 compatibility is present, but is no longer maintained.
+
+If you are updating from a Rails 3.0 application, you will no longer need to
+update your assets, they will be served from the engine (through Sprockets).
+You can delete all RailsAdmin related assets in your public directory.
+RailsAdmin needs the asset pipeline. Activate it in `application.rb`:
+
+    config.assets.enabled = true
+
+Please note that `initializer/rails_admin.rb` is very likely to require access to your DB.
+Thus if don't need access to your application at asset compilation time, 
+
+    config.assets.initialize_on_precompile = false
+
+will reduce your compilation time and is recommended.
+Note that this is needed on **Heroku** if you set `compile = false` and don't versionate `public/assets`.
+More here: http://devcenter.heroku.com/articles/rails31_heroku_cedar
+
+If you still have issue with the asset pipeline:
+
+* ake sure you are using latest Rails 3.1 and Sprockets release
+* copy all asset related configuration from application.rb and environment/*.rb files from a fresh (`rails new dummy`) rails app
+* remove old assets with `bundle exec rake assets:clean` when in development
+* read thoroughly the [Rails Guide](http://guides.rubyonrails.org/asset_pipeline.html)
+
+## <a name="usage">Usage</a>
 Start the server:
 
     $ rails server
@@ -127,28 +112,56 @@ Start the server:
 You should now be able to administer your site at
 [http://localhost:3000/admin](http://localhost:3000/admin).
 
-Configuration
--------------
+## <a name="configuration">Configuration</a>
 RailsAdmin provides its out of the box administrative interface by inspecting your application's
 models and following some Rails conventions. For a more tailored experience, it also provides a
 configuration DSL which allows you to customize many aspects of the interface.
 
-The configuration code should be placed in an initializer file, for example:
+A customized configuration guide is generated at installation in `config/initializers/rails_admin.rb`
 
-    config/initializers/rails_admin.rb
+Read it (!)
 
+The configuration will be executed at startup time, once. (dev & production)
+Rake tasks that load environment don't execute RailsAdmin initializer's block, for performance and DB migration status compatibility.
+You can force it (true or false):
+
+    SKIP_RAILS_ADMIN_INITIALIZER=false rake mytask
 
 ### General
+
+Set the application name:
+
+    RailsAdmin.config do |config|
+      config.main_app_name = ["Cool app", "BackOffice"]
+    end
+    # or somethig more dynamic
+    RailsAdmin.config do |config|
+      config.main_app_name = Proc.new { |controller| [ "Cool app", "BackOffice - #{controller.params[:action].try(:titleize)}" ] }
+    end
 
 You can customize authentication by providing a custom block for `RailsAdmin.authenticate_with`.
 To disable authentication, pass an empty block:
 
-    RailsAdmin.authenticate_with {}
+    RailsAdmin.config do |config|
+      config.authenticate_with {}
+    end
 
 You can exclude models from RailsAdmin by appending those models to `excluded_models`:
 
     RailsAdmin.config do |config|
-      config.excluded_models << ClassName
+      config.excluded_models << "ClassName"
+    end
+
+You can display empty fields in show view with:
+
+    RailsAdmin.config do |config|
+      config.compact_show_view = false
+    end
+
+You can customize the width of the list view with:
+
+    RailsAdmin.config do |config|
+      config.total_columns_width = 1000
     end
 
 **Whitelist Approach**
@@ -159,7 +172,7 @@ be accessible through RailsAdmin. The `excluded_models` configuration above perm
 If you prefer a whitelist approach, then you can use the `included_models` configuration option instead:
 
     RailsAdmin.config do |config|
-      config.included_models = [Class1, Class2, Class3]
+      config.included_models = ["Class1", "Class2", "Class3"]
     end
 
 Only the models explicitly listed will be put under RailsAdmin access, and the auto-discovery of models is skipped.
@@ -167,7 +180,7 @@ Only the models explicitly listed will be put under RailsAdmin access, and the a
 The blacklist is effective on top of that, still, so that if you also have:
 
     RailsAdmin.config do |config|
-      config.excluded_models = [Class1]
+      config.excluded_models = ["Class1"]
     end
 
 then only `Class2` and `Class3` would be made available to RailsAdmin.
@@ -214,9 +227,7 @@ effects.
           :custom_label_method
         end
       end
-    end
 
-    def Team<ActiveRecord::Base
       def custom_label_method
         "Team #{self.name}"
       end
@@ -264,19 +275,18 @@ accessors will be appended with ? whereas the writers will not be. That is, if
 you want to get the Team model's visibility, you use
 `RailsAdmin.config(Team).visible?`.
 
-**Create a dropdown menu in navigation**
-
-This will deactivate config.navigation.max_visible_tabs.
+**Create a navigation_label in navigation**
+    
+    # Given there are the following models: League, Team and Division
 
     RailsAdmin.config do |config|
-      ..
       config.model Team do
         parent League
       end
+
       config.model Division do
         parent League
       end
-      ..
     end
 
 Obtained navigation:
@@ -289,17 +299,15 @@ Obtained navigation:
       Team
     ...
 
-You probably want to change the name of the dropdown.
-This can be easily achieved with the 'dropdown' attribute of the parent model.
+You probably want to change the name of the navigation_label.
+This can be easily achieved with the 'navigation_label' method of the parent model.
 
 Added to previous example:
 
     RailsAdmin.config do |config|
-      ...
       config.model League do
-        dropdown 'League related'
+        navigation_label 'League related'
       end
-      ...
     end
 
 Obtained navigation:
@@ -315,21 +323,21 @@ Obtained navigation:
 **Change models order in navigation**
 
 By default, they are ordered by alphabetical order. If you need to override this, specify
-a weight attribute. Default is 0. Lower values will bubble items to the left, higher values
-will move them to the right. Items with same weight will still be ordered by alphabetical order.
-The mecanism is fully compatible with dropdown menus. Items will be ordered within their own
+a weight attribute. Default is 0. Lower values will bubble items to the top, higher values
+will move them to the bottom. Items with same weight will still be ordered by alphabetical order.
+The mechanism is fully compatible with navigation labels. Items will be ordered within their own
 menu subset. (but parent will always be first inside his submenu).
 
 Example:
 
     RailsAdmin.config do |config|
       config.model League do
-        dropdown 'League related'
+        navigation_label 'League related'
         weight -1
       end
     end
 
-The 'League related' dropdown menu will move to the leftmost position.
+The 'League related' navigation label will move to the topmost position.
 
 
 ### List view ###
@@ -352,7 +360,7 @@ The 'League related' dropdown menu will move to the leftmost position.
 You can configure the default number of rows rendered per page:
 
     RailsAdmin.config do |config|
-      config.list.default_items_per_page = 50
+      config.default_items_per_page = 50
     end
 
 **Number of items per page per model**
@@ -371,7 +379,7 @@ You can also configure it per model:
 
 By default, rows sorted by the field `id` in reverse order
 
-You can change default behavior with use two options: `sort_by` and `sort_reverse?`
+You can change default behavior with use two options: `sort_by` and `sort_reverse`
 
 **Default sorting - Configure globally**
 
@@ -404,7 +412,6 @@ Belongs_to associations :
   otherwise on the foreign_key (:team_id)
   you can also specify a column on the targetted table (see example) (3)
 
-
     RailsAdmin.config do |config|
       config.model Player do
         list do
@@ -414,16 +421,16 @@ Belongs_to associations :
           field :name do # (2)
             sortable :last_name # imagine there is a :last_name column and that :name is virtual
           end
-          field :team_id do # (3)
-            # Will order by players playing with the best teams, 
-            # rather than the team name (by default), 
+          field :team do # (3)
+            # Will order by players playing with the best teams,
+            # rather than the team name (by default),
             # or the team id (dull but default if object_label is not a column name)
-            
+
             sortable :win_percentage
-            
-            # if you need to specify the join association name: 
+
+            # if you need to specify the join association name:
             # (See #526 and http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html => table_aliasing)
-            sortable {:teams => :win_percentage} 
+            sortable {:teams => :win_percentage}
             # or
             sortable "teams.win_percentage"
           end
@@ -483,14 +490,14 @@ Belongs_to associations :
             searchable [:first_name, :last_name]
           end
 
-          field :team_id do # (4)
+          field :team do # (4)
             searchable [:name, :id]
-            # eq. to [Team => :name, Team => :id] 
+            # eq. to [Team => :name, Team => :id]
             # or even [:name, Player => :team_id] will search on teams.name and players.team_id
-          
-            # if you need to specify the join association name: 
+
+            # if you need to specify the join association name:
             # (See #526 and http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html => table_aliasing)
-            searchable [:teams => :name, :teams => :id]
+            searchable [{:teams => :name}, {:teams => :id}]
             # or
             searchable ["teams.name", "teams.id"]
           end
@@ -506,6 +513,17 @@ You can independently deactivate querying (search) or filtering for each field w
       queryable? true # default
       filterable? false
     end
+
+Empty filters can be displayed in the list view:
+
+    RailsAdmin.config do |config|
+      config.model Team do
+        list do
+          filters [:name, :division]
+        end
+      end
+    end
+
 
 **Fields - Visibility and ordering**
 
@@ -575,8 +593,16 @@ The field's output can be modified:
       config.model Team do
         list do
           field :name do
-            formatted_value do
+            formatted_value do # used in form views
               value.to_s.upcase
+            end
+
+            pretty_value do # used in list view columns and show views, defaults to formatted_value for non-association fields
+              value.titleize
+            end
+
+            export_value do
+              value.camelize # used in exports, where no html/data is allowed
             end
           end
           field :created_at
@@ -632,41 +658,6 @@ options are defined for a single field, `strftime_format` has precedence over
 [Rails Internationalization API](http://edgeguides.rubyonrails.org/i18n.html#adding-date-time-formats)
 and [Rails I18n repository](https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale).
 
-**Fields - Column CSS class**
-
-By default each column has a CSS class set according to field's data type. You
-can customize this by:
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        list do
-          field :name
-          field :created_at do
-            css_class "customClass"
-          end
-        end
-      end
-    end
-
-This would render the "created at" field's header and body columns with a CSS class named
-"customClass".
-
-**Fields - Column width**
-
-By default columns' widths are calculated from certain pre-defined,
-data-type-specific pixel values. If you want to ensure a minimum width for a
-column, you can:
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        list do
-          field :name do
-            column_width 200
-          end
-          field :created_at
-        end
-      end
-    end
 
 ### Create and update views
 
@@ -686,34 +677,8 @@ column, you can:
 
 **Form rendering**
 
-RailsAdmin renders these views with Rails' form builder (form_for). If you want to use a different
-form builder then provide an override for the edit view or independingly for the
-create and update views. The argument is a symbol or string that is sent to the view
-to process the form. This is handy for integrating things like the nested form builder (https://github.com/ryanb/nested_form) if you need to override a field's edit template.
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        edit do
-          form_builder :nested_form_for
-          field :name
-        end
-      end
-    end
-
-or independently
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        create do
-          form_builder :create_form_for
-          field :name
-        end
-        update do
-          form_builder :update_form_for
-          field :name
-        end
-      end
-    end
+RailsAdmin renders these views with is own form builder: `RailsAdmin::FormBuilder`
+You can inherit from it to customize form output.
 
 **Field groupings**
 
@@ -814,6 +779,12 @@ equal configuration:
       end
     end
 
+**Important note on label - I18n**
+
+Use association name as translation key for label for association fields.
+If you have :user_id field with a user association, use :user as the attribute
+
+
 In fact the first examples `group :default` configuration is unnecessary
 as the default group has already initialized all fields and belongs to
 associations for itself.
@@ -850,7 +821,6 @@ partial per default, but that can be overridden:
 
 There is a partial method for each action:
 
-* show
 * edit
 * create
 * update
@@ -879,6 +849,53 @@ have access to the current template's scope with bindings[:view]. There's also
 bindings[:object] available, which is the database record being edited.
 Bindings concept was introduced earlier in this document and the
 functionality is the same.
+
+Other example of completely override rendering logic is:
+
+    RailsAdmin.config do |config|
+      edit do
+        field :published do
+          label "Published question?"
+          render do
+            bindings[:view].render :partial => "yes_no", :locals => {:field => self, :form => bindings[:form], :fieldset => bindings[:fieldset]}
+          end
+        end
+      end
+    end
+
+In `app/views/rails_admin/main/_yes_no.html.erb`
+
+    <div class="field <%= field.dom_id %>">
+      <%= form.label field.method_name, field.label %>
+      <%= form.send :radio_button, field.name, "Y" %>
+
+      <%= %Q(Yes #{image_tag "yes.png", :alt => "Yes"} &nbsp &nbsp &nbsp).html_safe %>
+
+      <%= form.send :radio_button, field.name, "N" %>
+
+      <%= %Q(No #{image_tag "no.png", :alt => "No"}).html_safe %>
+
+      <% if field.errors.present? %>
+        <span class="errorMessage"><%= "#{field.label } #{field.errors.first}" %></span>
+      <% end %>
+      <p class="help"><%= field.help %></p>
+    </div>
+
+In this *dirty* example above, all objects can be manipulated by the developer.
+
+You can flag a field as read only, and if necessary fine-tune the output with pretty_value:
+
+    RailsAdmin.config do |config|
+      edit do
+        field :published do
+          read_only true
+          pretty_value do
+            bindings[:object].published? ? 'Yes, it's live!' : 'No, in the loop...'
+          end
+        end
+      end
+    end
+
 
 **Fields - overriding field type**
 
@@ -921,21 +938,18 @@ RailsAdmin ships with the following field types:
 * date
 * datetime
 * decimal
-* file_upload _does not initialize automatically_
-* paperclip_file _initializes automatically if Paperclip is present_
+* paperclip/dragonfly/carrierwave *(see Wiki for configuration)*
 * float
 * has_and_belongs_to_many_association
 * has_many_association
 * has_one_association
 * integer
-* password _initializes if string type column's name is password_
+* password *(initializes if string type column's name is password)*
 * string
-* enum
+* enum *(see Wiki for configuration)*
 * text
 * time
 * timestamp
-* virtual _useful for displaying data that is calculated a runtime
-(for example a method call on model instance)_
 
 **Fields - Creating a custom field type**
 
@@ -978,77 +992,12 @@ Everything can be overridden with `help`:
       end
     end
 
-**Fields - Paperclip**
-
-    class Team < ActiveRecord::Base
-      has_attached_file :image, :styles => { :medium => "300x300>", :thumb => "100x100>" }
-
-      # handling delete in your model, if needed. Replace all image occurences with your asset name.
-      attr_accessor :delete_image
-      before_save { self.image = nil if self.delete_image == '1' }
-    end
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        edit do
-          field :image do
-            thumb_method :thumb # for images. Will default to full size image, which might break the layout
-            delete_method :delete_image # actually not needed in this case: default is "delete_#{field_name}" if the object responds to it
-          end
-        end
-      end
-    end
-
-**Fields - Enum**
-
-Fields of datatype string, integer, text can be rendered with select boxes. Auto-detected if object responds to `#{method_name}_enum`.
-You can use `enum_method` to indicate the name of the enumeration method in your model.
-You can use `enum` to override any `enum_method` and give back a `FormOptionsHelper#options_for_select` collection.
-
-    class Team < ActiveRecord::Base
-      ...
-      def color_enum
-        [['blue', 'red'], 'red']
-        # should return any collection accepted by `FormOptionsHelper#options_for_select`
-        # See http://api.rubyonrails.org/classes/ActionView/Helpers/FormOptionsHelper.html#method-i-options_for_select
-      end
-      ...
-    end
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        edit do
-          field :color
-          # defaults to
-          # field :color, :enum do
-          #   enum_method do
-          #     :color_enum
-          #   end
-          # end
-        end
-      end
-    end
-
-If you don't have any enumeration method in your model, this will work:
-
-    RailsAdmin.config do |config|
-      config.model Team do
-        edit do
-          field :color, :enum do
-            enum do
-              ['green', 'white']
-            end
-          end
-        end
-      end
-    end
-
 **Fields - CKEditor integration**
 
 CKEditor can be enabled on fields of type text:
 
     RailsAdmin.config do |config|
-      config.model MyModel do
+      config.model Team do
         edit do
           field :description, :text do
             ckeditor true
@@ -1059,7 +1008,8 @@ CKEditor can be enabled on fields of type text:
 
 **Fields - Ordered has_many/has_and_belongs_to_many/has_many :through associations**
 
-Orderable can be enabled on filtering multiselect fields (has_many, has_many :through & has_and_belongs_to_many associations), allowing selected options to be moved up/down.
+Orderable can be enabled on filtering multiselect fields (has_many, has_many :through & has_and_belongs_to_many associations),
+allowing selected options to be moved up/down.
 RailsAdmin will handle ordering in and out of the form.
 
     RailsAdmin.config do |config|
@@ -1074,6 +1024,14 @@ RailsAdmin will handle ordering in and out of the form.
 
 You'll need to handle ordering in your model with a position column for example.
 
+** Associations - trivia **
+
+You can edit related objects in filtering-multiselect by double-clicking on any visible item in the widget.
+
+If you set the :inverse_of option on your relations, RailsAdmin will automatically populate the inverse relationship
+in the modal creation window. (link next to belongs\_to and has\_many widgets)
+
+:readonly options are automatically inferred on associations fields and won't be editable in forms.
 
 ### Configuring fields ###
 
@@ -1100,7 +1058,7 @@ Example:
             type == :datetime
           end
 
-          exclude_fields :id, :name     
+          exclude_fields :id, :name
         end
       end
     end
@@ -1117,7 +1075,7 @@ Example:
           field :name do
             # snipped specific configuration for name attribute
           end
-          
+
           include_all_fields # all other default fields will be added after, conveniently
           exclude_fields :created_at # but you still can remove fields
         end
@@ -1126,24 +1084,37 @@ Example:
 
 ** Fields - include some fields **
 
-It is also possible to add fields by group and configure them by batches:
+It is also possible to add fields by group and configure them by group:
 
 Example:
 
     RailsAdmin.config do |config|
       config.model League do
         list do
-          # all selected fields will be added, but you can't configure them. 
+          # all selected fields will be added, but you can't configure them.
           # If you need to select them by type, see *fields_of_type*
           include_fields_if do
             name =~ /displayed/
           end
-          
+
           include_fields :name, :title                # simply adding fields by their names (order will be maintained)
           fields :created_at, :updated_at do          # adding and configuring
             label do
               "#{label} (timestamp)"
             end
+          end
+        end
+      end
+    end
+
+Note that some fields are hidden by default (associations) and that you can display them to the list view by
+manually setting them to visible:
+
+    RailsAdmin.config do |config|
+      config.model League do
+        list do
+          field :teams do
+            visible true
           end
         end
       end
@@ -1230,53 +1201,57 @@ Or even scope it like this:
       end
     end
 
-Authorization
--------------
+## <a name="authorization">Authorization</a>
+
+`:attr_accessible` and `:attr_protected` are taken into account: restricted fields are not editable (read_only).
+If you whitelist attributes, don't forget to whitelist accessible associations' 'id' methods as well : `division_id`, `player_ids`, `commentable_type`, `commentable_id`, etc.
+`:attr_accessible` specifies a list of accessible methods for mass-assignment in your ActiveModel models. By default, RailsAdmin uses role `:default` (default in ActiveModel).
+If the role you specify isn't used in your whitelist declarations, you'll free access to all attributes.
+Keep in mind that `'key' != :key`
+You can change role with a block evaluated in the context of the controller (you'll have access to the view and your current_user) :
+
+    RailsAdmin.config do |config|
+      config.attr_accessible_role do
+        current_user.roles.first
+      end
+    end
+
+If you don't want read_only fields to be visible in your forms:
+
+    RailsAdmin.config do |c|
+      c.reload_between_requests = false # strongly advised, since mass-assignement slows things down a lot.
+      c.models do
+        edit do
+          fields do
+            visible do
+              visible && !read_only
+            end
+          end
+        end
+      end
+    end
+
+
 
 Authorization can be added using the `authorize_with` method. If you pass a block
 it will be triggered through a before filter on every action in Rails Admin.
 
-    RailsAdmin.authorize_with do
-      redirect_to root_path unless warden.user.is_admin?
+    RailsAdmin.config do |config|
+      config.authorize_with do
+        redirect_to root_path unless warden.user.is_admin?
+      end
     end
 
 To use an authorization adapter, pass the name of the adapter. For example, to use
 with [CanCan](https://github.com/ryanb/cancan), pass it like this.
 
-    RailsAdmin.authorize_with :cancan
+    RailsAdmin.config do |config|
+      config.authorize_with :cancan
+    end
 
 See the [wiki](https://github.com/sferik/rails_admin/wiki) for more on authorization.
 
-Static Assets & Locales
------------------------
-
-When running `rake rails_admin:install` the locale files (`config/locales/...`) and the static asset files
-(javascript files, images, stylesheets) are copied to your local application tree.
-
-Should you update the gem to a new version that perhaps includes updated locale or asset files, then you won't automatically
-be able to take advantage of these. In fact, you may choose for this reason, to not commit locale files and asset
-files to your local repository and instead have them loaded from the gem.
-
-You can choose to commit locale files to your local application tree, if you want to modify them from what the gem
-supplies; then you also need to manage updates by hand. Locale files will be automatically loaded from the gem
-unless overrides exist.
-
-For asset files, the following applies: When running in development mode, the rails_admin engine will inject a middleware
-to serve static assets (javascript files, images, stylesheets) from the gem's location. This generally isn't a good
-setup for high-traffic production environments. Depending on your web server configuration is may also just plain fail.
-You may need to serve the asset files from the local application tree (public/...). You can choose to have the assets
-served from the gem in development mode but from the local application tree in production mode. In that case, you
-need to copy the assets during deployment (e.g. via a capistrano hook).
-
-Two rake tasks have been provided to copy locale and asset files to the local application tree:
-
-    rake rails_admin:copy_locales
-    rake rails_admin:copy_assets
-
-These tasks run automatically during installation, but are provided separately, e.g. for updates or deployments.
-
-Contributing
-------------
+## <a name="contributing">Contributing</a>
 In the spirit of [free software](http://www.fsf.org/licensing/essays/free-sw.html), **everyone** is encouraged to help improve this project.
 
 Here are some ways *you* can contribute:
@@ -1291,9 +1266,9 @@ Here are some ways *you* can contribute:
 * by refactoring code
 * by resolving [issues](https://github.com/sferik/rails_admin/issues)
 * by reviewing patches
+* [financially](http://pledgie.com/campaigns/15917)
 
-Submitting an Issue
--------------------
+## <a name="issues">Submitting an Issue</a>
 We use the [GitHub issue tracker](https://github.com/sferik/rails_admin/issues) to track bugs and
 features. Before submitting a bug report or feature request, check to make sure it hasn't already
 been submitted. You can indicate support for an existing issue by voting it up. When submitting a
@@ -1301,8 +1276,7 @@ bug report, please include a [Gist](https://gist.github.com/) that includes a st
 details that may be necessary to reproduce the bug, including your gem version, Ruby version, and
 operating system. Ideally, a bug report should include a pull request with failing specs.
 
-Submitting a Pull Request
--------------------------
+## <a name="pulls">Submitting a Pull Request</a>
 1. Fork the project.
 2. Create a topic branch.
 3. Implement your feature or bug fix.  *NOTE* - there's a small test app located in the spec/dummy_app directory that you can use to experiment with rails_admin.
@@ -1313,6 +1287,13 @@ Submitting a Pull Request
 8. Commit and push your changes.
 9. Submit a pull request. Please do not include changes to the gemspec, version, or history file. (If you want to create your own version for some reason, please do so in a separate commit.)
 
-Contact
--------
-If you have questions about contributing to RailsAdmin, please contact [Erik Michaels-Ober](https://github.com/sferik) and [Bogdan Gaza](https://github.com/hurrycane).
+## <a name="rubies">Supported Rubies</a>
+This library aims to support and is [tested
+against](http://travis-ci.org/sferik/rails_admin) the following Ruby
+implementations:
+
+* Ruby 1.8.7
+* [Ruby Enterprise Edition](http://www.rubyenterpriseedition.com/)
+* Ruby 1.9.2
+* Ruby 1.9.3
+* [Rubinius](http://rubini.us)

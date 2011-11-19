@@ -7,22 +7,26 @@ module RailsAdmin
       # @see RailsAdmin::Config::Fields.registry
       mattr_reader :default_factory
       @@default_factory = lambda do |parent, properties, fields|
-        # Belongs to association need special handling as they also include a column in the table
-        if association = parent.abstract_model.belongs_to_associations.find {|a| a[:child_key].first.to_s == properties[:name].to_s}
-          type = association[:options][:polymorphic] ? :polymorphic_association : :belongs_to_association
-          fields << RailsAdmin::Config::Fields::Types.load(type).new(parent, properties[:name], properties, association)
-          # Polymorphic associations type column should be hidden
-          if association[:options][:polymorphic]
-            props = parent.abstract_model.properties.find {|p| association[:options][:foreign_type] == p[:name].to_s }
-            RailsAdmin::Config::Fields.default_factory.call(parent, props, fields)
-            fields.last.hide
-          end
         # If it's an association
-        elsif properties.has_key?(:parent_model) && :belongs_to != properties[:type]
-          fields << RailsAdmin::Config::Fields::Types.load("#{properties[:type]}_association").new(parent, properties[:name], properties)
-        # If it's a concrete column
+        if properties.has_key?(:parent_model)
+          association = parent.abstract_model.associations.find {|a| a[:name].to_s == properties[:name].to_s}
+          field = RailsAdmin::Config::Fields::Types.load("#{association[:polymorphic] ? :polymorphic : properties[:type]}_association").new(parent, properties[:name], association)
+
+          field.read_only(true) if association[:read_only]
+          fields << field
+
+        # If it's a column
         elsif !properties.has_key?(:parent_model)
-          fields << RailsAdmin::Config::Fields::Types.load(properties[:type]).new(parent, properties[:name], properties) unless properties[:type].blank?
+          fields << (field = RailsAdmin::Config::Fields::Types.load(properties[:type]).new(parent, properties[:name], properties))
+          # hide _type columns (handled as associations)
+          if parent.abstract_model.belongs_to_associations.find {|a| a[:foreign_type] == properties[:name] }
+            field.hide
+          end
+          # hide _id column
+          if parent.abstract_model.belongs_to_associations.find {|a| a[:child_key] == properties[:name] }
+            field.hide
+            field.filterable(false) # filtering is handled on the association itself
+          end
         end
       end
 
@@ -55,6 +59,7 @@ module RailsAdmin
         fields = []
         return fields unless parent.abstract_model.model_store_exists?
         # Load fields for all properties (columns)
+
         parent.abstract_model.properties.each do |properties|
           # Unless a previous factory has already loaded current field as well
           unless fields.find {|f| f.name == properties[:name] }
@@ -90,3 +95,5 @@ require 'rails_admin/config/fields/factories/password'
 require 'rails_admin/config/fields/factories/enum'
 require 'rails_admin/config/fields/factories/devise'
 require 'rails_admin/config/fields/factories/paperclip'
+require 'rails_admin/config/fields/factories/dragonfly'
+require 'rails_admin/config/fields/factories/carrierwave'

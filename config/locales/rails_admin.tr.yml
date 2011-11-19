@@ -4,6 +4,11 @@
 tr:
   home:
     name: "anasayfa"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "Site Yönetimi"
@@ -21,7 +26,7 @@ tr:
       no_activity: "Aktivite yok"
     credentials:
       log_out: "Çıkış yap"
-    list:
+    index:
       edit_action: "Düzenle"
       delete_action: "Sil"
       select_action: "Select"
@@ -54,6 +59,7 @@ tr:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "Evet, eminim"
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     export:
       confirmation: "Export to %{name}"
       select: "Select fields to export"
@@ -87,11 +93,11 @@ tr:
       exported: "exported"
     breadcrumbs:
       delete: "delete"
-      history: "history"
+      for_object: "history"
       edit: "edit"
       export: "export"
       bulk_destroy: "delete"
       new: "new"
-      model_history: "history"
-      list: "list"
+      for_model: "history"
+      index: "list"
       dashboard: "dashboard"

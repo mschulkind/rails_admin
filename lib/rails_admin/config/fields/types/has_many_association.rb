@@ -13,15 +13,8 @@ module RailsAdmin
             ""
           end
 
-          register_instance_option(:edit_partial) do
-            "form_filtering_multiselect"
-          end
-
-          register_instance_option(:html_attributes) do
-            {
-              :class => "#{css_class} #{has_errors? ? "errorField" : nil}",
-              :multiple => "multiple",
-            }
+          register_instance_option(:partial) do
+            :form_filtering_multiselect
           end
 
           # orderable associated objects
@@ -34,8 +27,14 @@ module RailsAdmin
           end
 
           def method_name
-            "#{super.singularize}_ids" # name_ids
+            "#{super.to_s.singularize}_ids" # name_ids
           end
+
+          # Reader for validation errors of the bound object
+          def errors
+            bindings[:object].errors[name]
+          end
+
         end
       end
     end

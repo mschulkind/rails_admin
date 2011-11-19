@@ -1,6 +1,11 @@
 zh_cn:
   home:
     name: "主页"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "网站管理"
@@ -18,7 +23,7 @@ zh_cn:
       no_activity: "非激活"
     credentials:
       log_out: "登出"
-    list:
+    index:
       edit_action: "编辑"
       delete_action: "删除"
       select_action: "选择"
@@ -53,6 +58,7 @@ zh_cn:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "是的，我确定"
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     export:
       confirmation: "Export to %{name}"
       select: "选择需要导出的字段"
@@ -86,13 +92,13 @@ zh_cn:
       exported: "已导出"
     breadcrumbs:
       delete: "delete"
-      history: "history"
+      for_object: "history"
       edit: "edit"
       export: "export"
       bulk_destroy: "delete"
       new: "new"
-      model_history: "history"
-      list: "list"
+      for_model: "history"
+      index: "list"
       dashboard: "dashboard"
   datetime:
     distance_in_words:

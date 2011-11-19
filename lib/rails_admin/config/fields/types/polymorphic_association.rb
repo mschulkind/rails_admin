@@ -8,18 +8,8 @@ module RailsAdmin
           # Register field type for the type loader
           RailsAdmin::Config::Fields::Types::register(self)
 
-          @column_width = 250
-
-          def initialize(parent, name, properties, association)
-            super(parent, name, properties, association)
-          end
-
-          register_instance_option(:edit_partial) do
+          register_instance_option(:partial) do
             :form_polymorphic_association
-          end
-
-          register_instance_option(:show_partial) do
-            :show_polymorphic_association
           end
 
           # Accessor whether association is visible or not. By default
@@ -36,6 +26,16 @@ module RailsAdmin
           register_instance_option(:searchable) do
             false
           end
+          
+          # TODO not supported yet
+          register_instance_option :associated_collection_cache_all do
+            false
+          end
+          
+          # TODO not supported yet
+          register_instance_option :associated_collection_scope do
+            nil
+          end
 
           def associated_collection(type)
             return [] if type.nil?
@@ -46,7 +46,7 @@ module RailsAdmin
           end
 
           def associated_model_config
-            association[:parent_model].map{|type| RailsAdmin.config(type) }.select{|config| !config.excluded? }
+            @associated_model_config ||= association[:parent_model].map{|type| RailsAdmin.config(type) }.select{|config| !config.excluded? }
           end
 
           def polymorphic_type_collection
@@ -61,13 +61,13 @@ module RailsAdmin
             end
 
             Hash[*types.collect { |v|
-                  [v[0], bindings[:view].rails_admin_list_path(v[1])]
+                  [v[0], bindings[:view].index_path(v[1])]
                 }.flatten]
           end
 
           # Reader for field's value
           def value
-            bindings[:object].send(name)
+            bindings[:object].send(association[:name])
           end
         end
       end

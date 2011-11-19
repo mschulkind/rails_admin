@@ -4,6 +4,11 @@
 hr:
   home:
     name: "naslovna"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "Administracija stranice"
@@ -21,7 +26,7 @@ hr:
       no_activity: "Nema aktivnosti"
     credentials:
       log_out: "Odjava"
-    list:
+    index:
       edit_action: "Uredi"
       delete_action: "Obriši"
       select_action: "Izaberi"
@@ -52,6 +57,7 @@ hr:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "Da, siguran sam"
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     flash:
       successful: "%{name} je uspješno %{action}"
       error: "%{name} nije uspješno %{action}"
@@ -65,11 +71,11 @@ hr:
       deleted: "obrisano"
     breadcrumbs:
       delete: "delete"
-      history: "history"
+      for_object: "history"
       edit: "edit"
       export: "export"
       bulk_destroy: "delete"
       new: "new"
-      model_history: "history"
-      list: "list"
+      for_model: "history"
+      index: "list"
       dashboard: "dashboard"

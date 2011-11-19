@@ -1,6 +1,11 @@
 uk:
   home:
     name: "Домівка"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "Адміністрація"
@@ -18,7 +23,7 @@ uk:
       no_activity: "Пусто"
     credentials:
       log_out: "Вийти"
-    list:
+    index:
       edit_action: "Редагувати"
       delete_action: "Видалити"
       add_new: "Створити"
@@ -51,6 +56,7 @@ uk:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "Так, я впевнений"
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     export:
       confirmation: "Export to %{name}"
       select: "Select fields to export"
@@ -84,11 +90,11 @@ uk:
       exported: "exported"
     breadcrumbs:
       delete: "delete"
-      history: "history"
+      for_object: "history"
       edit: "edit"
       export: "export"
       bulk_destroy: "delete"
       new: "new"
-      model_history: "history"
-      list: "list"
+      for_model: "history"
+      index: "list"
       dashboard: "dashboard"

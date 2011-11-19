@@ -4,6 +4,11 @@
 mn:
   home:
     name: "нүүр"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "Сайтын удирдлага"
@@ -21,7 +26,7 @@ mn:
       no_activity: "No Activity"
     credentials:
       log_out: "Гарах"
-    list:
+    index:
       edit_action: "Засах"
       delete_action: "Устгах"
       select_action: "Сонгох"
@@ -54,6 +59,7 @@ mn:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "Итгэлтэй байна уу"
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     export:
       confirmation: "Export to %{name}"
       select: "Select fields to export"
@@ -87,11 +93,11 @@ mn:
       exported: "exported"
     breadcrumbs:
       delete: "delete"
-      history: "history"
+      for_object: "history"
       edit: "edit"
       export: "export"
       bulk_destroy: "delete"
       new: "new"
-      model_history: "history"
-      list: "list"
+      for_model: "history"
+      index: "list"
       dashboard: "dashboard"

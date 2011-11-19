@@ -1,14 +1,17 @@
-class Team < ActiveRecord::Base
-  validates_numericality_of(:division_id, :only_integer => true)
-  validates_presence_of(:manager)
-  validates_numericality_of(:founded, :only_integer => true)
-  validates_numericality_of(:wins, :only_integer => true)
-  validates_numericality_of(:losses, :only_integer => true)
-  validates_numericality_of(:win_percentage)
-  validates_numericality_of(:revenue, :allow_nil => true)
+# coding: utf-8
 
-  belongs_to(:division)
-  has_many(:players)
+
+class Team < ActiveRecord::Base
+  validates_numericality_of :division_id, :only_integer => true
+  validates_presence_of :manager
+  validates_numericality_of :founded, :only_integer => true
+  validates_numericality_of :wins, :only_integer => true
+  validates_numericality_of :losses, :only_integer => true
+  validates_numericality_of :win_percentage
+  validates_numericality_of :revenue, :allow_nil => true
+
+  belongs_to :division
+  has_many :players, :inverse_of => :team
   has_and_belongs_to_many :fans
   has_many :comments, :as => :commentable
 
@@ -17,6 +20,6 @@ class Team < ActiveRecord::Base
   end
 
   def color_enum
-    ['white', 'black', 'red', 'green', 'blue']
+    ['white', 'black', 'red', 'green', 'blu<e>é']
   end
 end

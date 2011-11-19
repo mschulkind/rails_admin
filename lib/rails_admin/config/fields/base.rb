@@ -14,8 +14,7 @@ module RailsAdmin
         attr_accessor :defined, :order
 
         def self.inherited(klass)
-            klass.instance_variable_set("@css_class", klass.name.to_s.demodulize.camelcase(:lower))
-            klass.instance_variable_set("@view_helper", :text_field)
+          klass.instance_variable_set("@view_helper", :text_field)
         end
 
         include RailsAdmin::Config::Hideable
@@ -35,31 +34,39 @@ module RailsAdmin
         end
 
         register_instance_option(:css_class) do
-          self.class.instance_variable_get("@css_class")
+          "#{self.name}_field"
         end
-
-        def column_css_class(*args, &block)
-          if !args[0].nil? || block
-            @css_class = args[0].nil? ? block : args[0]
-          else
-            css_class
-          end
+        
+        def type_css_class
+          "#{type}_type"
+        end
+        
+        def virtual?
+          properties.blank?
         end
 
         register_instance_option(:column_width) do
-          self.class.instance_variable_get("@column_width")
+          nil
+        end
+
+        register_instance_option(:read_only) do
+          role = bindings[:view].controller.send(:_attr_accessible_role)
+          klass = bindings[:object].class
+          whitelist = klass.accessible_attributes(role).map(&:to_s)
+          blacklist = klass.protected_attributes(role).map(&:to_s)
+          self.method_name.to_s.in?(blacklist) || (whitelist.any? ? !self.method_name.to_s.in?(whitelist) : false)
         end
 
         register_instance_option(:truncated?) do
-          true
+          ActiveSupport::Deprecation.warn("'#{self.name}.truncated?' is deprecated, use '#{self.name}.pretty_value' instead", caller)
         end
-
+        
         register_instance_option(:sortable) do
-          true
+          !virtual?
         end
 
         register_instance_option(:searchable) do
-          true
+          !virtual?
         end
 
         register_instance_option(:queryable?) do
@@ -71,7 +78,7 @@ module RailsAdmin
         end
 
         register_instance_option(:search_operator) do
-          RailsAdmin::Config.default_search_operator
+          @search_operator ||= RailsAdmin::Config.default_search_operator
         end
 
         # serials and dates are reversed in list, which is more natural (last modified items first).
@@ -94,7 +101,9 @@ module RailsAdmin
                 @table_name, column_name = f.split '.'
                 f = column_name.to_sym
               end
+
               field_name = f.is_a?(Hash) ? f.values.first : f
+
               abstract_model = if f.is_a?(Hash) && (f.keys.first.is_a?(Class) || f.keys.first.is_a?(String)) #  { Model => :attribute } || { "Model" => :attribute }
                 AbstractModel.new(f.keys.first)
               elsif f.is_a?(Hash)                                            #  { :table_name => :attribute }
@@ -112,74 +121,71 @@ module RailsAdmin
         end
 
         register_instance_option(:formatted_value) do
-          unless (output = value).nil?
-            output
-          else
-            "".html_safe
-          end
+          value.to_s
         end
+
+        # output for pretty printing (show, list)
+        register_instance_option(:pretty_value) do
+          formatted_value
+        end
+
+        # output for printing in export view (developers beware: no bindings[:view] and no data!)
+        register_instance_option(:export_value) do
+          pretty_value
+        end
+
 
         # Accessor for field's help text displayed below input field.
         register_instance_option(:help) do
-          (required? ? I18n.translate("admin.new.required") : I18n.translate("admin.new.optional") + '. ')
+          @help ||= (required? ? I18n.translate("admin.new.required") : I18n.translate("admin.new.optional")) + '. '
         end
 
         register_instance_option(:html_attributes) do
-          {
-            :class => "#{css_class} #{has_errors? ? "errorField" : nil}",
-            :value => value
-          }.merge(column_width.present? ? { :style => "width:#{column_width}px" } : {})
+          {}
         end
 
         # Accessor for field's label.
         #
         # @see RailsAdmin::AbstractModel.properties
         register_instance_option(:label) do
-          abstract_model.model.human_attribute_name name
+          @label ||= abstract_model.model.human_attribute_name name
         end
 
-        # Accessor for field's maximum length.
+        # Accessor for field's maximum length per database.
         #
         # @see RailsAdmin::AbstractModel.properties
         register_instance_option(:length) do
-          properties && properties[:length]
+          @length ||= properties && properties[:length]
         end
 
-        register_instance_option(:show_partial) do
-          :show_base
+        # Accessor for field's length restrictions per validations
+        #
+        register_instance_option(:valid_length) do
+          @valid_length ||= abstract_model.model.validators_on(name).find{|v|
+            v.is_a?(ActiveModel::Validations::LengthValidator)}.try{|v| v.options} || {}
         end
 
         register_instance_option(:partial) do
-          # TODO remove me, I've been deprecated on 2011-07-12
-        end
-
-        register_instance_option(:edit_partial) do
           :form_field
         end
 
-        register_instance_option(:create_partial) do
-          edit_partial
-        end
-
-        register_instance_option(:update_partial) do
-          edit_partial
-        end
+        register_deprecated_instance_option(:show_partial, :partial) # deprecated on 2011-07-15
+        register_deprecated_instance_option(:edit_partial, :partial) # deprecated on 2011-07-15
+        register_deprecated_instance_option(:create_partial, :partial) # deprecated on 2011-07-15
+        register_deprecated_instance_option(:update_partial, :partial) # deprecated on 2011-07-15
 
         register_instance_option(:render) do
-          action = self.parent.class.to_s.demodulize.downcase
-          bindings[:view].render :partial => send("#{action}_partial").to_s, :locals => {:field => self, :form => bindings[:form] }
+          bindings[:view].render :partial => partial.to_s, :locals => {:field => self, :form => bindings[:form] }
         end
 
-        # Accessor for whether this is field is mandatory.  This is
-        # based on two factors: whether the field is nullable at the
-        # database level, and whether it has an ActiveRecord validation
-        # that requires its presence.
+        # Accessor for whether this is field is mandatory.
         #
         # @see RailsAdmin::AbstractModel.properties
         register_instance_option(:required?) do
-          validators = abstract_model.model.validators_on(@name)
-          required_by_validator = validators.find{|v| (v.class == ActiveModel::Validations::PresenceValidator) || (v.class == ActiveModel::Validations::NumericalityValidator && v.options[:allow_nil]==false)} && true || false
-          properties && !properties[:nullable?] || required_by_validator
+          @required ||= !!abstract_model.model.validators_on(name).find do |v|
+            v.is_a?(ActiveModel::Validations::PresenceValidator) && !v.options[:allow_nil] ||
+            v.is_a?(ActiveModel::Validations::NumericalityValidator) && !v.options[:allow_nil]
+          end
         end
 
         # Accessor for whether this is a serial field (aka. primary key, identifier).
@@ -190,7 +196,7 @@ module RailsAdmin
         end
 
         register_instance_option(:view_helper) do
-          self.class.instance_variable_get("@view_helper")
+          @view_helper ||= self.class.instance_variable_get("@view_helper")
         end
 
         # Is this an association
@@ -205,7 +211,8 @@ module RailsAdmin
 
         # Reader whether the bound object has validation errors
         def has_errors?
-          !(bindings[:object].errors[name].nil? || bindings[:object].errors[name].empty?)
+          # TODO DEPRECATE, USELESS
+          errors.present?
         end
 
         # Reader whether field is optional.
@@ -233,18 +240,6 @@ module RailsAdmin
           optional(state)
         end
 
-        # Legacy support
-        def to_hash
-          {
-            :name => name,
-            :pretty_name => label,
-            :type => type,
-            :length => length,
-            :nullable? => required?,
-            :serial? => serial?
-          }
-        end
-
         # Reader for field's type
         def type
           @type ||= self.class.name.to_s.demodulize.underscore.to_sym
@@ -270,7 +265,7 @@ module RailsAdmin
         end
 
         def method_name
-          name.to_s
+          name
         end
       end
     end

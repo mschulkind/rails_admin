@@ -4,6 +4,11 @@
 pt-PT:
   home:
     name: "home"
+  views:
+    pagination:
+      previous: "&laquo; Prev"
+      next: "Next &raquo;"
+      truncate: "…"
   admin:
     dashboard:
       pagename: "Administração do site"
@@ -18,13 +23,19 @@ pt-PT:
     history:
       name: "Histórico"
       page_name: "Histórico de %{name}"
+      no_activity: "Sem actividade"
+    show:
+      show_in_app: "Mostrar na aplicação"
+      page_name: "Detalhes de %{name}"
+      no_file_found: "Ficheiro não encontrado"
     credentials:
       log_out: "Terminar sessão"
-    list:
+    index:
       edit_action: "Editar"
       delete_action: "Remover"
       select_action: "Select"
       export_action: "Export current view"
+      show_action: "Exportar"
       export_selected: "Export selected"
       delete_selected: "Delete selected"
       add_new: "Adicionar"
@@ -53,6 +64,7 @@ pt-PT:
       are_you_sure_you_want_to_delete_the_object: "Are you sure you want to delete the %{model_name}"
       confirmation: "Sim, com certeza."
       delete_confirmation: "Delete confirmation"
+      bulk_delete: "The following objects will be deleted, which may delete or orphan some of their related dependencies:"
     export:
       confirmation: "Export to %{name}"
       select: "Select fields to export"
@@ -86,11 +98,12 @@ pt-PT:
       exported: "exported"
     breadcrumbs:
       delete: "deletar"
-      history: "história"
+      for_object: "história"
+      show: "mostrar"
       edit: "editar"
       export: "exportar"
       bulk_destroy: "deletar"
       new: "novo"
-      model_history: "história"
-      list: "listar"
+      for_model: "história"
+      index: "listar"
       dashboard: "administração"

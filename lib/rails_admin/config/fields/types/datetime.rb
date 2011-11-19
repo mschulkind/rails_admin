@@ -146,16 +146,8 @@ module RailsAdmin
             end
           end
 
-          register_instance_option(:html_attributes) do
-            {
-              :class => "#{css_class} #{has_errors? ? "errorField" : nil}",
-              :value => formatted_value,
-              :style => "width:#{column_width}px",
-            }
-          end
-
-          register_instance_option(:edit_partial) do
-            "form_datetime"
+          register_instance_option(:partial) do
+            :form_datetime
           end
 
           register_instance_option(:strftime_format) do
